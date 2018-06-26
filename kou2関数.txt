@@ -1,0 +1,30 @@
+# setmake(out_cards,may_cards,joker_flag)
+使用カードすべてにペアがなければ階段を生成
+## example
+* 55,6,77 > 5,6,7の階段
+* 33,44,55 > 階段にならない（ペアが３組）
+* 55,66,77,8 > 階段にならない（ペアが３組と８が単体）
+* 66,7,8,99 > 6,7,8,9の階段
+この情報をout_cardsに格納
+格納方法はout_cards[0][j]~out_cards[3][j]に階段に使う
+カードの枚数が格納される
+ex1ならばout_cards[i][4](７の位置)に３が入る
+out_cards[4][j]には手札のカード枚数が記録される
+
+# kaidanhand(select_cards,search,own_cards)
+階段をsearchから探して、あればselect_cardsに階段の強さを格納
+階段の強さとは、階段に使われるカードの中で一番大きいカードの強さのこと
+なければ０が入る
+
+# grouphand(select_cards,search,n)
+ペア（２枚or３枚or４枚）の枚数指定
+n=０もある（枚数指定がない）何枚でもいいって感じ
+あればselect_cardsにそのペアのカードの強さ（カードの大きさ）
+なければ０が返る
+
+# pat-make(pattern,own_cards,max,used_cards,joker_flag)
+1,setmake関数で階段を作る
+その階段の強さをkaidanhandで調べる
+2,もしできなければ、grouphandでペア強を作り、強さを調べる
+強いカードかつ４枚組になれば、２枚ずつに分ける
+3,評価値の決定（カードの強さではない）

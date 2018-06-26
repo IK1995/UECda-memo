@@ -1,0 +1,112 @@
+# WSL ubuntu を使った　UECdaサーバーの動かし方
+
+## WSLの導入
+### まず
+[Windows の機能] を立ち上げ、[Windows Subsystem for Linux] にチェックをつけ、OKをクリックします。
+この操作には再起動が必要となります。
+
+## ダウンロードとインストール
+Windowsストアからダウンロード、インストールしてください
+version16.04じゃないと描画関係で駄目っぽいです
+
+インストール後ユーザー名とパスワードを登録してください（自由）
+
+### ホームディレクトリの変更
+デフォルトだとWindows側から見て
+C:\Users\[ユーザー名(windows)]\AppData\Local\Packages
+\CanonicalGroupLimited.Ubuntu16.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home
+\[ユーザー名(ubuntu)]
+がホームディレクトリになっています
+
+しかし、\rootfs\home以下のディレクトリでのファイル編集は規制されているらしく
+この後、作業ができなくなるので変更します
+以下のコマンドは\rootfs\home\[ユーザー]　のディレクトリから操作することを想定しています
+
+$ sudo vim ../../etc/passwd
+
+（↓ユーザ名の行を探し/home/xxxを「/mnt/c/linux_home」に変更）
+{ubuntu上のユーザ名}:x:1000:1000:,,,:/mnt/c/[任意]:/bin/bash
+aを押してインサートモードにしてから、編集し、ecsキーを押してコマンドモードにした後
+:wqと押してください
+変更を保存し、コマンドラインに戻ります
+
+ここで/mnt/c/[]とはwindowsのディレクトリになります
+/mnt/c/Users/[ユーザー(windows)]/Desktop はwindowsのデスクトップを表します
+ここに移動しlsコマンドを打つと「ゴミ箱」などデスクトップ上のアイコンなどが表示されます
+
+## アップデート
+	lsb_release -a　と打ち、バージョンの確認をしてください
+	もし違っていれば
+	sudo apt update で最新版にアップデートしてください
+	16.0.4にアップデートされるはずです(18.~にはなりませんので安心してください)
+	その後ubuntuに入っているパッケージを最新版にアップグレードします
+	sudo apt upgrade　と打ってください
+	これをしないとこの後のインストールなどがうまくいきません
+
+## コンパイルするためのパッケージインストール
+さて、今の状態ではコンパイルなどは一切できません
+なので、最低限gccやmakeができるようにしましょう
+sudo apt install build-essential
+上記のコマンドを打つことでgccやmake関係のパッケージがインストールされます
+
+さて現状でtndhmをconfigureすると以下のエラーが吐かれます
+checking for X... no
+checking for XmbDrawString in -lX11... no
+checking for XpmCreatePixmapFromData in -lXpm... no
+checking for XCopyArea... no
+これ関係のパッケージをインストールしましょう
+
+http://game-informatics.blogspot.com/2011/01/uecda.html
+上記のURLを参考にして以下のコマンドを打ってください
+sudo apt-get install xorg-dev 
+これを打つことで上記の４つのエラーがすべて消えます
+しかし次の問題が出てきます
+ X11/Xaw/Label.h: No such file or directory
+ ヘッダーファイルがないとのことです
+ それを解決するために下記のコマンドを打ってください
+sudo apt-get install libxaw7-dev
+これで./configureが通るはずです
+makeをしましょう
+いろいろWARNINGとかでますが、無視してかまいません
+makeが完了すると/server/srcにtndhmsがあるはずです
+tndhms.exeはありません。なくても問題ないです
+このまま./tndhmsを実行しても何も起きません
+理由はX serverにあります
+これを導入しなければ、コンピューター大貧民はできません
+なので以下で導入の説明を行います
+
+## X　server のインストール
+### PCにインストール
+Xming等がありますがVcXsrvを今回は導入します（Xserverならどれでもいいっぽい？）
+最新版だしいろいろ簡単そうなのでVcsrvにします
+https://sourceforge.net/projects/vcxsrv/
+↑ココに移動しDownload
+ダウンロード後exeを起動、next連打で完了まで進む
+インストールされていると、スタートメニューにXLaunchがあるので押して起動
+起動後、四つの絵が写っているウィンドウが表示されていると思うので
+nextを連打し完了させてください
+右下の＾をクリックするとXのアイコンがあれば成功です
+
+### ubuntuにインストール
+ubuntuコマンドライン上で
+sudo apt install git libssl-dev libreadline-dev zlib1g-dev x11-apps x11-utils x11-xserver-utils libsqlite3-dev nodejs fonts-ipafont libxml2-dev libxslt1-dev
+を入力
+y/nを押せと出るのでyを押しましょう
+たぶんいらないものも入ってるでしょうけど、一応全部入れてください
+--sudo apt autoremove をうてばいらないやつははじかれるらしいです?--
+
+インストールされたかの確認のために簡単なアプリを起動します
+まずコマンドラインでexport DISPLAY=localhost:0.0を入力しましょう
+
+これはこの後に打つアプリケーションをどのXWindowのウィンドウに表示するかの設定です
+毎回撃ちましょう
+毎回撃つのが面倒な時は.bashrcを変更しないといけません
+（私は怖いので毎回撃ってます）
+
+コマンドを撃った後にxeyesと撃ちましょう
+黒目が動く目が画面に表示されていればX Window は完了です！！
+
+## 大貧民サーバーの起動
+右下の＾を押したときにXがある（Xserverを起動している）状態で
+exportを設定します（.bashrcに書いている人はそのまま次に行ってください）
+そのあと/server/src/で　./tndhmsと打てば、大貧民サーバーの画面が出るはずです
