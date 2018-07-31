@@ -1,22 +1,24 @@
-�������ŏ����i�_�~�[�ł��j
+メモ長で書く（ダミーです）
 
 ------------
 #!/bin/sh
 
-cd ~[./tndhms�̂���f�B���N�g���܂�]
-export DISPLAY=localhost:0.0(.bashrc�ɏ����Ă���Ȃ�Ώ����Ȃ��Ă��悢)
+cd ~[./tndhmsのあるディレクトリまで]
+export DISPLAY=localhost:0.0(.bashrcに書いているならば書かなくてもよい)
 ./tndhms &
 -----------
 
-���ꂾ�Ɠ����Ȃ��i���s�����̊֌W��G���[���f����܂��j
-�ȉ��̃R�}���h��ł��ė]�v�ȉ��s�������폜���܂��傤
-tr -d -c ""[:print:]^\n"" < �_�~�[.sh > �{��.sh
+これだと動かない（改行文字の関係上エラーが吐かれます）
+以下のコマンドを打って余計な改行文字を削除しましょう
+tr -d -c ""[:print:]^\n"" < ダミー.sh > 本命.sh
 
-���̂���vi �{��.sh ��#!/bin/sh �Ɓ@cd �Ԃɉ��s������ł�
-�{���f�B���N�g����export�̊ԁA0.0��./�̊Ԃɂ����s�����܂��傤
-����œ����͂�
+そのあとvi 本命.sh で#!/bin/sh と　cd 間に改行文字を打つ
+本命ディレクトリとexportの間、0.0と./の間にも改行をしましょう
+これで動くはず
 
-��������������vi�ō��Ζ��Ȃ�����͂��H�i�m�F�����j
-�ŏ�����ubuntu���vi�ō��Γ��ɖ��Ȃ�
+そもそも元からviで作れば問題なく作れるはず？（確認した）
+最初からubuntu上でviで作れば特に問題ない
 
-����windows��ubuntu�̕����R�[�h�̈Ⴂ������
+結局windowsとubuntuの文字コードの違いが原因  
+
+上記のシェルスクリプトはUEC大貧民サーバーを起動するやつなのでこのリポジトリに書いています
