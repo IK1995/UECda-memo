@@ -1,2 +1,3 @@
-# slackmemo
-slackのメモに書いたやつを上げてるだけ
+# UECda-memo
+UECdaでわからなかったことの解決策などを  
+まとめてみた
